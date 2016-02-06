@@ -201,6 +201,29 @@ public class MoviesActivityFragment extends Fragment {
                 api.execute();
             }
         }
+        if(mSharedPrefs.getString(getString(R.string.pref_sort_key),
+                getString(R.string.pref_sort_label_popular))
+                .equals(getString(R.string.pref_sort_fav))){
+            DatabaseHandler db = new DatabaseHandler(this.getActivity());
+            movieGrid = (GridView) rootView.findViewById(R.id.movieGrid);
+            gridData = new ArrayList<Movie>();
+            gridData = db.getAll();
+            // get data from db
+            gridAdapter = new GridAdapter(mCotext, R.layout.movie_grid_item,gridData);
+            movieGrid.setAdapter(gridAdapter);
+            mProgressBar.setVisibility(View.INVISIBLE);
+            movieGrid.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+                @Override
+                public void onItemClick(AdapterView<?> adapterView, View item,
+                                        int position, long rowId) {
+                    // Retrieve item based on position
+                    Movie tmp = gridAdapter.getItem(position);
+
+                    // Fire selected listener event with item
+                    listener.onItemSelected(tmp); // <--------------
+                }
+            });
+        }
     }
 
 
