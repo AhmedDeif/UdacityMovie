@@ -10,7 +10,7 @@ import java.io.Serializable;
 /**
  * Created by ahmedabodeif1 on 1/21/16.
  */
-public class Movie implements Serializable {
+public class Movie  {
 
 
     int _id;

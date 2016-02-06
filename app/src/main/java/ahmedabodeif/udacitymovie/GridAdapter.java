@@ -18,7 +18,7 @@ import java.util.ArrayList;
 /**
  * Created by ahmedabodeif1 on 1/21/16.
  */
-public class GridAdapter extends ArrayAdapter<Item> {
+public class GridAdapter extends ArrayAdapter<Movie> {
 
 
     Context context;
@@ -29,11 +29,11 @@ public class GridAdapter extends ArrayAdapter<Item> {
 
 
 
-    public GridAdapter(Context context, int resource, ArrayList<Item> data) {
+    public GridAdapter(Context context, int resource, ArrayList<Movie> data) {
         super(context, resource, data);
         this.layoutResourceId = resource;
         this.context = context;
-        this.itemsTemp = data;
+        this.data = data;
     }
 
 
@@ -61,7 +61,7 @@ public class GridAdapter extends ArrayAdapter<Item> {
         } else {
             holder = (Row) row.getTag();
         }
-        final Item item = itemsTemp.get(position);
+       // final Item item = itemsTemp.get(position);
 
         final Row finalHolder = holder;
 

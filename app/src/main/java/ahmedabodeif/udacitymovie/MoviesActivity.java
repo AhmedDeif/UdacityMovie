@@ -2,13 +2,9 @@ package ahmedabodeif.udacitymovie;
 
 import android.content.Intent;
 import android.os.Bundle;
-import android.support.design.widget.FloatingActionButton;
-import android.support.design.widget.Snackbar;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.AppCompatActivity;
-import android.support.v7.widget.Toolbar;
 import android.util.Log;
-import android.view.View;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.FrameLayout;
@@ -43,18 +39,27 @@ public class MoviesActivity extends AppCompatActivity implements MoviesActivityF
     }
 
     @Override
-    public void onItemSelected(Item item) {
+    public void onItemSelected(Movie movie) {
         if (isTwoPane) { // single activity with list and detail
             // Replace framelayout with new detail fragment
-            DetailActivityFragment fragmentItem = DetailActivityFragment.newInstance(item);
+            DetailActivityFragment fragmentItem = DetailActivityFragment.newInstance(movie);
             FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
             ft.replace(R.id.flDetailContainer, fragmentItem);
             ft.commit();
         } else { // go to separate activity
             // launch detail activity using intent
             Intent i = new Intent(this, DetailActivityFragment.class);
-            i.putExtra("item", item);
-            startActivity(i);
+            Intent intent  = new Intent(this, DetailActivity.class);
+
+            intent.putExtra("id",movie.getMovieId());
+            intent.putExtra("description",movie.getOverview());
+            intent.putExtra("movieDate",movie.getRealseDate());
+            intent.putExtra("movieRating",movie.getRating());
+            intent.putExtra("movieTitle",movie.getTitle());
+            intent.putExtra("image",movie._image);
+
+            //i.putExtra("item", item);
+            startActivity(intent);
         }
     }
 
