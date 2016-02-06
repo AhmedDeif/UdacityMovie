@@ -11,11 +11,19 @@ import android.util.Log;
 import android.view.View;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.widget.AdapterView;
 import android.widget.FrameLayout;
+import android.widget.GridView;
+import android.widget.ProgressBar;
+
+import java.util.ArrayList;
 
 public class MoviesActivity extends AppCompatActivity implements MoviesActivityFragment.OnListItemSelectedListener {
 
     private boolean isTwoPane = false;
+    public GridAdapter gridAdapter2;
+
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -40,7 +48,7 @@ public class MoviesActivity extends AppCompatActivity implements MoviesActivityF
     }
 
     @Override
-    public void onItemSelected(Item item) {
+    public void onItemSelected(Movie item) {
         if (isTwoPane) { // single activity with list and detail
             // Replace framelayout with new detail fragment
             DetailActivityFragment fragmentItem = DetailActivityFragment.newInstance(item);
@@ -49,8 +57,21 @@ public class MoviesActivity extends AppCompatActivity implements MoviesActivityF
             ft.commit();
         } else { // go to separate activity
             // launch detail activity using intent
-            Intent i = new Intent(this, DetailActivityFragment.class);
-            i.putExtra("item", item);
+            Intent i = new Intent(this, DetailActivity.class);
+           // i.putExtra("item", item); Movie tmp = (Movie) gridData.get(position);
+            i.putExtra("movieTitle",item.getTitle());
+            i.putExtra("movieRating",item.getRating());
+            i.putExtra("moviePoster",item.getPosterURL());
+            i.putExtra("movieDate",item.getRealseDate());
+            i.putExtra("movieLength",item.getLength());
+            i.putExtra("description",item.getOverview());
+            i.putExtra("id", item.getMovieId());
+            i.putExtra("image",item._image);
+
+            if(item._image == null)
+                item.setMoviePoster(item.getMoviePoster());
+            i.putExtra("image",item._image);
+            // put movie details here
             startActivity(i);
         }
     }
@@ -65,8 +86,12 @@ public class MoviesActivity extends AppCompatActivity implements MoviesActivityF
 
         //noinspection SimplifiableIfStatement
         if (id == R.id.action_settings) {
-            return true;
+            startActivity(new Intent(this, SettingsActivity.class));
         }
+        if(id == R.id.refresh) {
+        }
+
+
 
         return super.onOptionsItemSelected(item);
     }
