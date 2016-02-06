@@ -25,10 +25,6 @@ public class GridAdapter extends ArrayAdapter<Movie> {
     ArrayList<Movie> data;
     int layoutResourceId;
 
-    ArrayList<Item> itemsTemp;
-
-
-
     public GridAdapter(Context context, int resource, ArrayList<Movie> data) {
         super(context, resource, data);
         this.layoutResourceId = resource;
@@ -36,15 +32,10 @@ public class GridAdapter extends ArrayAdapter<Movie> {
         this.data = data;
     }
 
-
-
-
     public void setGridData(ArrayList<Movie> mGridData) {
         this.data = mGridData;
         notifyDataSetChanged();
     }
-
-
 
     @Override
     public View getView(int position, View convertView, ViewGroup parent) {
@@ -61,10 +52,29 @@ public class GridAdapter extends ArrayAdapter<Movie> {
         } else {
             holder = (Row) row.getTag();
         }
-       // final Item item = itemsTemp.get(position);
+        final Movie item = data.get(position);
 
-        final Row finalHolder = holder;
+        if(item.getMoviePoster()!=null) {
+            holder.imgView.setImageBitmap(item.getMoviePoster());
+        }
+        else {
 
+
+            final Row finalHolder = holder;
+            Picasso.with(context).load(item.getPosterURL()).into(holder.imgView, new com.squareup.picasso.Callback() {
+                @Override
+                public void onError() {
+
+                }
+
+                @Override
+                public void onSuccess() {
+                    Bitmap bitmap = ((BitmapDrawable) finalHolder.imgView.getDrawable()).getBitmap();
+                    item.setMoviePoster(bitmap);
+                    Log.e("Picasso adding image", "done");
+                }
+            });
+        }
         return row;
     }
 

@@ -2,17 +2,26 @@ package ahmedabodeif.udacitymovie;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.support.design.widget.FloatingActionButton;
+import android.support.design.widget.Snackbar;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.Toolbar;
 import android.util.Log;
+import android.view.View;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.widget.AdapterView;
 import android.widget.FrameLayout;
+import android.widget.GridView;
+import android.widget.ProgressBar;
+
+import java.util.ArrayList;
 
 public class MoviesActivity extends AppCompatActivity implements MoviesActivityFragment.OnListItemSelectedListener {
 
     private boolean isTwoPane = false;
-
+    public GridAdapter gridAdapter2;
 
 
     @Override
@@ -34,34 +43,39 @@ public class MoviesActivity extends AppCompatActivity implements MoviesActivityF
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
-        getMenuInflater().inflate(R.menu.menu_main, menu);
+        getMenuInflater().inflate(R.menu.menu_movies, menu);
         return true;
     }
 
     @Override
-    public void onItemSelected(Movie movie) {
+    public void onItemSelected(Movie item) {
         if (isTwoPane) { // single activity with list and detail
             // Replace framelayout with new detail fragment
-            DetailActivityFragment fragmentItem = DetailActivityFragment.newInstance(movie);
+            DetailActivityFragment fragmentItem = DetailActivityFragment.newInstance(item);
             FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
             ft.replace(R.id.flDetailContainer, fragmentItem);
             ft.commit();
         } else { // go to separate activity
             // launch detail activity using intent
-            Intent i = new Intent(this, DetailActivityFragment.class);
-            Intent intent  = new Intent(this, DetailActivity.class);
+            Intent i = new Intent(this, DetailActivity.class);
+           // i.putExtra("item", item); Movie tmp = (Movie) gridData.get(position);
+            i.putExtra("movieTitle",item.getTitle());
+            i.putExtra("movieRating",item.getRating());
+            i.putExtra("moviePoster",item.getPosterURL());
+            i.putExtra("movieDate",item.getRealseDate());
+            i.putExtra("movieLength",item.getLength());
+            i.putExtra("description",item.getOverview());
+            i.putExtra("id", item.getMovieId());
+            i.putExtra("image",item._image);
 
-            intent.putExtra("id",movie.getMovieId());
-            intent.putExtra("description",movie.getOverview());
-            intent.putExtra("movieDate",movie.getRealseDate());
-            intent.putExtra("movieRating",movie.getRating());
-            intent.putExtra("movieTitle",movie.getTitle());
-            intent.putExtra("image",movie._image);
-
-            //i.putExtra("item", item);
-            startActivity(intent);
+            if(item._image == null)
+                item.setMoviePoster(item.getMoviePoster());
+            i.putExtra("image",item._image);
+            // put movie details here
+            startActivity(i);
         }
     }
+
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
@@ -72,8 +86,12 @@ public class MoviesActivity extends AppCompatActivity implements MoviesActivityF
 
         //noinspection SimplifiableIfStatement
         if (id == R.id.action_settings) {
-            return true;
+            startActivity(new Intent(this, SettingsActivity.class));
         }
+        if(id == R.id.refresh) {
+        }
+
+
 
         return super.onOptionsItemSelected(item);
     }

@@ -10,7 +10,7 @@ import java.io.Serializable;
 /**
  * Created by ahmedabodeif1 on 1/21/16.
  */
-public class Movie  {
+public class Movie implements Serializable {
 
 
     int _id;
@@ -24,8 +24,6 @@ public class Movie  {
     private String length;
     private String movieId;
      byte[] _image;
-
-
 
 
     public Movie(){
@@ -42,6 +40,7 @@ public class Movie  {
         ByteArrayInputStream imageStream = new ByteArrayInputStream(m);
         Bitmap theImage = BitmapFactory.decodeStream(imageStream);
         this.moviePoster = theImage;
+        this._image = m;
     }
 
     public Movie(Bitmap img){

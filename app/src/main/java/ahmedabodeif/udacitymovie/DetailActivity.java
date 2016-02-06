@@ -17,15 +17,19 @@ public class DetailActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_detail);
         // Fetch the item to display from bundle
-        //Item item = (Item) getIntent().getSerializableExtra("item");
-        Intent intent = getIntent();
+        Item item = (Item) getIntent().getSerializableExtra("item");
+
+        Intent intent  = this.getIntent();
         Movie tmp = new Movie();
-        tmp.setMovieId(savedInstanceState.getString("id"));
-        tmp.setOverview(savedInstanceState.getString("id"));
-        tmp.setRealseDate(savedInstanceState.getString("id"));
-        tmp.setRating(savedInstanceState.getString("id"));
-        tmp.setTitle(savedInstanceState.getString("id"));
-        tmp.setImage(savedInstanceState.getByteArray("image"));
+        tmp.setMovieId(intent.getStringExtra("id"));
+        tmp.setOverview(intent.getStringExtra("description"));
+        tmp.setRealseDate(intent.getStringExtra("movieDate"));
+        tmp.setRating(intent.getStringExtra("movieRating"));
+        tmp.setTitle(intent.getStringExtra("movieTitle"));
+        tmp.setImage(intent.getByteArrayExtra("image"));
+        tmp.setLength(intent.getStringExtra("movieLength"));
+        tmp._image = intent.getByteArrayExtra("image");
+
 
         if (savedInstanceState == null) {
             // Insert detail fragment based on the item passed

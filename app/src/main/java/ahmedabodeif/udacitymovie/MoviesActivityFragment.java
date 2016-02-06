@@ -2,6 +2,7 @@ package ahmedabodeif.udacitymovie;
 
 import android.app.Activity;
 import android.content.Context;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -10,7 +11,9 @@ import android.os.AsyncTask;
 import android.preference.PreferenceManager;
 import android.support.v4.app.Fragment;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
@@ -38,18 +41,20 @@ import java.util.ArrayList;
  */
 public class MoviesActivityFragment extends Fragment {
 
+    private ArrayAdapter<Movie> adapterItems;
     private GridAdapter gridAdapter;
     private GridView movieGrid;
-    private ArrayList<Movie> gridData = new ArrayList<Movie>();
-
-    // parameters needed for aysnc task
-    private OnListItemSelectedListener listener;
+    private ArrayList<Movie> gridData = new ArrayList<>();
+    private ListView lvItems;
     private ProgressBar mProgressBar;
-    private SharedPreferences mSharedPrefs;
     private Context mCotext;
-
-    // used to update when setting changed
+    private SharedPreferences mSharedPrefs;
     private String oldSetting;
+    View rootView;
+
+
+
+    private OnListItemSelectedListener listener;
 
     public interface OnListItemSelectedListener {
         public void onItemSelected(Movie item);
@@ -68,32 +73,10 @@ public class MoviesActivityFragment extends Fragment {
     }
 
 
-
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        // Create arraylist from item fixtures
-        ArrayList<Item> items = Item.getItems();
-        ArrayList<Movie> movies = new ArrayList<>();
-        Bitmap moviePoster = BitmapFactory.decodeResource(getActivity().getBaseContext().getResources(),
-                R.drawable.starwars);
-        ByteArrayOutputStream bos = new ByteArrayOutputStream();
-        moviePoster.compress(Bitmap.CompressFormat.PNG, 100, bos);
-
-        for (int i=0;i<10;i++){
-            Movie temp = new Movie();
-            temp.setRating("9.0");
-            temp.setTitle("Movie" + i);
-            temp.setImage(bos.toByteArray());
-            temp._image = bos.toByteArray();
-            temp.setRealseDate("today");
-            temp.setMovieId(i+"");
-            temp.setOverview("This is a movie overview");
-            gridData.add(temp);
-
-        }
-        // Create adapter based on items
-        gridAdapter = new GridAdapter(getActivity(),R.layout.movie_grid_item,gridData);
+        setHasOptionsMenu(true);
     }
 
 
@@ -101,29 +84,12 @@ public class MoviesActivityFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate view
-        View rootView = inflater.inflate(R.layout.fragment_movies,
+        rootView = inflater.inflate(R.layout.fragment_movies,
                 container, false);
-
-        // Attach adapter to gridView
-        movieGrid = (GridView) rootView.findViewById(R.id.movieGrid);
-        movieGrid.setAdapter(gridAdapter);
-        movieGrid.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-            @Override
-            public void onItemClick(AdapterView<?> adapterView, View item,
-                                    int position, long rowId) {
-                // Retrieve item based on position
-                Movie tmp = gridAdapter.getItem(position);
-
-                // Fire selected listener event with item
-                listener.onItemSelected(tmp); // <--------------
-            }
-        });
         mCotext = this.getContext();
         mSharedPrefs = PreferenceManager.getDefaultSharedPreferences(mCotext);
         oldSetting = mSharedPrefs.getString(getString(R.string.pref_sort_key),
                 getString(R.string.pref_sort_label_popular));
-
-        /*
 
 
         if(oldSetting.equals(getString(R.string.pref_sort_fav))) {
@@ -137,19 +103,15 @@ public class MoviesActivityFragment extends Fragment {
             gridAdapter = new GridAdapter(mCotext, R.layout.movie_grid_item,gridData);
             movieGrid.setAdapter(gridAdapter);
             mProgressBar.setVisibility(View.INVISIBLE);
-
-
-
-            // I need to start new detail activity only when its not a tablet
             movieGrid.setOnItemClickListener(new AdapterView.OnItemClickListener() {
                 @Override
-                public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                    // Start detail activity passing the movie information in intent.
-                    //startDetailActivity(position);
+                public void onItemClick(AdapterView<?> adapterView, View item,
+                                        int position, long rowId) {
+                    // Retrieve item based on position
+                    Movie tmp = gridAdapter.getItem(position);
 
-                    Item ite = gridAdapter.getItem(position);
                     // Fire selected listener event with item
-                    listener.onItemSelected(ite);
+                    listener.onItemSelected(tmp); // <--------------
                 }
             });
         }
@@ -159,32 +121,146 @@ public class MoviesActivityFragment extends Fragment {
 
             mProgressBar = (ProgressBar) rootView.findViewById(R.id.progressBar);
             movieGrid = (GridView) rootView.findViewById(R.id.movieGrid);
-
-            //  adapter not type movie
             gridAdapter = new GridAdapter(mCotext, R.layout.movie_grid_item,gridData);
             movieGrid.setAdapter(gridAdapter);
 
-            // I need to start new detail activity only when its not a tablet
             movieGrid.setOnItemClickListener(new AdapterView.OnItemClickListener() {
                 @Override
-                public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                public void onItemClick(AdapterView<?> adapterView, View item,
+                                        int position, long rowId) {
+                    // Retrieve item based on position
+                    Movie tmp = gridAdapter.getItem(position);
 
-                    // Start detail activity passing the movie information in intent.
-                    //startDetailActivity(position);
-
-                    Item ite = gridAdapter.getItem(position);
                     // Fire selected listener event with item
-                    listener.onItemSelected(ite);
+                    listener.onItemSelected(tmp); // <--------------
                 }
             });
             FetChMoviesApiRequest api = new FetChMoviesApiRequest();
             api.execute();
             mProgressBar.setVisibility(View.VISIBLE);
         }
-        */
+
         // Return view
         return rootView;
     }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        View rootView = this.getView();
+        if(!(mSharedPrefs.getString(getString(R.string.pref_sort_key),
+                getString(R.string.pref_sort_label_popular)).equals(oldSetting))) {
+
+            if(mSharedPrefs.getString(getString(R.string.pref_sort_key),
+                    getString(R.string.pref_sort_label_popular))
+                    .equals(getString(R.string.pref_sort_fav))) {
+
+                DatabaseHandler db = new DatabaseHandler(this.getActivity());
+                movieGrid = (GridView) rootView.findViewById(R.id.movieGrid);
+                gridData = new ArrayList<Movie>();
+                gridData = db.getAll();
+                // get data from db
+                gridAdapter = new GridAdapter(mCotext, R.layout.movie_grid_item,gridData);
+                movieGrid.setAdapter(gridAdapter);
+                mProgressBar.setVisibility(View.INVISIBLE);
+                movieGrid.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+                    @Override
+                    public void onItemClick(AdapterView<?> adapterView, View item,
+                                            int position, long rowId) {
+                        // Retrieve item based on position
+                        Movie tmp = gridAdapter.getItem(position);
+
+                        // Fire selected listener event with item
+                        listener.onItemSelected(tmp); // <--------------
+                    }
+                });
+            }
+            else {
+
+                // Since setting changed must update grid with new data.
+                movieGrid.invalidateViews();
+                mProgressBar = (ProgressBar) rootView.findViewById(R.id.progressBar);
+                movieGrid = (GridView) rootView.findViewById(R.id.movieGrid);
+                gridData = new ArrayList<Movie>();
+                gridAdapter = new GridAdapter(mCotext, R.layout.movie_grid_item, gridData);
+                movieGrid.setAdapter(gridAdapter);
+                mProgressBar.setVisibility(View.VISIBLE);
+
+                movieGrid.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+                    @Override
+                    public void onItemClick(AdapterView<?> adapterView, View item,
+                                            int position, long rowId) {
+                        // Retrieve item based on position
+                        Movie tmp = gridAdapter.getItem(position);
+
+                        // Fire selected listener event with item
+                        listener.onItemSelected(tmp); // <--------------
+                    }
+                });
+                FetChMoviesApiRequest api = new FetChMoviesApiRequest();
+                api.execute();
+            }
+        }
+    }
+
+
+    public boolean onOptionsItemSelected(MenuItem item) {
+
+        int id = item.getItemId();
+
+        if(id == R.id.refresh) {
+            if(!(mSharedPrefs.getString(getString(R.string.pref_sort_key),
+                    getString(R.string.pref_sort_label_popular))
+                    .equals(getString(R.string.pref_sort_fav)))){
+                movieGrid.invalidateViews();
+                Log.e("debug", "detected refresh button click");
+                gridData = new ArrayList<Movie>();
+                mProgressBar = (ProgressBar) rootView.findViewById(R.id.progressBar);
+                movieGrid = (GridView) rootView.findViewById(R.id.movieGrid);
+                gridAdapter = new GridAdapter(this.getActivity(), R.layout.movie_grid_item,gridData);
+                movieGrid.setAdapter(gridAdapter);
+
+                movieGrid.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+                    @Override
+                    public void onItemClick(AdapterView<?> adapterView, View item,
+                                            int position, long rowId) {
+                        // Retrieve item based on position
+                        Movie tmp = gridAdapter.getItem(position);
+
+                        // Fire selected listener event with item
+                        listener.onItemSelected(tmp); // <--------------
+                    }
+                });
+                FetChMoviesApiRequest api = new FetChMoviesApiRequest();
+                api.execute();
+                mProgressBar.setVisibility(View.VISIBLE);
+            }
+            else{
+                DatabaseHandler db = new DatabaseHandler(this.getActivity());
+                movieGrid = (GridView) rootView.findViewById(R.id.movieGrid);
+                gridData = new ArrayList<Movie>();
+                gridData = db.getAll();
+                // get data from db
+                gridAdapter = new GridAdapter(mCotext, R.layout.movie_grid_item,gridData);
+                movieGrid.setAdapter(gridAdapter);
+                mProgressBar.setVisibility(View.INVISIBLE);
+                movieGrid.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+                    @Override
+                    public void onItemClick(AdapterView<?> adapterView, View item,
+                                            int position, long rowId) {
+                        // Retrieve item based on position
+                        Movie tmp = gridAdapter.getItem(position);
+
+                        // Fire selected listener event with item
+                        listener.onItemSelected(tmp); // <--------------
+                    }
+                });
+            }
+        }
+
+        return super.onOptionsItemSelected(item);
+    }
+
 
     protected class FetChMoviesApiRequest extends AsyncTask<String,Void,Integer> {
         //  trailers link
@@ -323,4 +399,6 @@ public class MoviesActivityFragment extends Fragment {
         }
 
     }
+
+
 }
