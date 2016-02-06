@@ -16,6 +16,9 @@ import android.widget.FrameLayout;
 public class MoviesActivity extends AppCompatActivity implements MoviesActivityFragment.OnListItemSelectedListener {
 
     private boolean isTwoPane = false;
+
+
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -35,7 +38,7 @@ public class MoviesActivity extends AppCompatActivity implements MoviesActivityF
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
-        getMenuInflater().inflate(R.menu.menu_movies, menu);
+        getMenuInflater().inflate(R.menu.menu_main, menu);
         return true;
     }
 
@@ -54,7 +57,6 @@ public class MoviesActivity extends AppCompatActivity implements MoviesActivityF
             startActivity(i);
         }
     }
-
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
